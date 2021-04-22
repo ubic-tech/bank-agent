@@ -10,13 +10,13 @@ import time
 from models import bank, ubic, common
 from config import config
 from utils import request
-from clients import Repository
+from repository.fake_repository import FakeRepository
 from utils.decompose import decompose
-from TransactionManager import (
+from transaction_manager import (
     TransactionManager, NotSinglePartnerShare, ShareAlreadyReceived)
 
 router = APIRouter()
-repository = Repository(UUID(config.BANK_UUID))
+repository = FakeRepository(UUID(config.BANK_UUID))
 transaction_manager = TransactionManager()
 
 
@@ -50,18 +50,18 @@ def _create_shares(transaction_id: UUID, partners: [UUID], clients: [UUID]
     :return: my share and shares for partners
     """
     res: [bank.ShareRequest] = []
-    balances: [[int]] = []
+    decomposed_balances: [[int]] = []
     shares_count = len(partners)
-    for client in clients:
-        balance = repository.get_balance(client)
-        balances.append(decompose(balance, shares_count))
+    balances = repository.get_balances(clients)
+    for balance in balances:
+        decomposed_balances.append(decompose(balance, shares_count))
 
     for i in range(shares_count):
         res.append(bank.ShareRequest(
             transaction_id=transaction_id,
             partners=partners,
             clients=clients,
-            shares=[b[i] for b in balances])
+            shares=[b[i] for b in decomposed_balances])
         )
     return res[0], res[1:]
 

@@ -1,4 +1,7 @@
 from uuid import UUID
+from typing import Iterable
+
+from repository.repository import Repository
 
 _oleg = UUID("aaa1fc87-5722-4383-9830-2be483b6468d")
 _olga = UUID("bbb1fc87-5722-4383-9830-2be483b6468d")
@@ -37,11 +40,14 @@ _clients = {
 }
 
 
-class Repository:
+class FakeRepository(Repository):
     def __init__(self, uuid: UUID):
         self.uuid = uuid
 
-    def get_balance(self, client_uuid) -> int:
+    def get_balances(self, clients: Iterable[UUID]) -> Iterable[int]:
+        return [self._get_balance(client) for client in clients]
+
+    def _get_balance(self, client_uuid) -> int:
         try:
             if isinstance(client_uuid, UUID):
                 return _clients[self.uuid][client_uuid]
@@ -53,8 +59,13 @@ class Repository:
             return 0
 
 
+def test():
+    rep = FakeRepository(UUID("111aaaaa-1af0-489e-b761-d40344c12e70"))
+    clients = [UUID("aaa1fc87-5722-4383-9830-2be483b6468d"),
+               "aaa1fc87-5722-4383-9830-2be483b6468d",
+               UUID("6661fc87-5722-4383-9830-2be483b6468d"), ]
+    assert rep.get_balances(clients) == [199, 199, 0]
+
+
 if __name__ == '__main__':
-    rep = Repository(UUID("111aaaaa-1af0-489e-b761-d40344c12e70"))
-    assert rep.get_balance(UUID("aaa1fc87-5722-4383-9830-2be483b6468d")) == 200
-    assert rep.get_balance("aaa1fc87-5722-4383-9830-2be483b6468d") == 200
-    assert rep.get_balance(UUID("6661fc87-5722-4383-9830-2be483b6468d")) == 0
+    test()
