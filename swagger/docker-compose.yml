@@ -1,0 +1,10 @@
+version: "3.9"
+services:
+  bank_main:
+    build:
+      context: .
+      args:
+        - filename=bank_main
+    ports:
+      - "8000:8000"
+
