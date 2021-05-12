@@ -48,8 +48,10 @@ class Transactions:
     transactions: Collection[TransactionInfo]
 
 
-async def create_transaction_manager():
-    await _engine.bind(motor=_motor, inject_motyc_fields=True)
+async def create_transaction_manager(
+        motor: Optional[AsyncIOMotorClient] = None):
+    await _engine.bind(motor=_motor if motor is None else motor,
+                       inject_motyc_fields=True)
     await Transactions.transactions.collection.drop()
     await Transactions.transactions.collection.create_index(_tid, unique=True)
 
@@ -119,7 +121,7 @@ class TransactionManager:
         if transaction is None:
             return None
         received = sum(
-            1 for p_sh in transaction.partner_shares if p_sh.received != 0
+            1 for p_sh in transaction.partner_shares if p_sh.received == 1
         )
         if received != transaction.num_partners:
             return None

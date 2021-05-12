@@ -39,20 +39,3 @@ def decompose(secret: int, parts_count: int) -> [int]:
         res.extend(get_rand_pair(change))
 
     return res
-
-
-def test():
-    parts_number = 500
-    for secret in [-100, 100, 100339, -9723892]:
-        decomposed = decompose(secret, parts_number)
-        restored = modulo_transform(sum(decomposed))
-        if restored > config.MODULO/2:
-            restored -= config.MODULO
-        elif restored < -config.MODULO/2:
-            restored += config.MODULO
-        assert len(decomposed) == parts_number
-        assert restored == secret, (secret, restored)
-
-
-if __name__ == '__main__':
-    test()

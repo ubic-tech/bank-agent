@@ -9,14 +9,14 @@ from models.common import Shares
 class ShareRequest(BaseModel):
     transaction_id: UUID
     partners: List[UUID]
-    clients: List[UUID]
+    clients: List[str]
     shares: Shares
 
 
 class ComputeRequest(BaseModel):
-    clients: List[UUID]
+    clients: List[str]
 
 
 class ComputeResponse(BaseModel):
-    clients: List[UUID]
+    clients: List[str]
     result: Union[Shares, str]

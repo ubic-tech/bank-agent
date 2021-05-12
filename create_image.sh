@@ -1,0 +1,1 @@
+docker build -t banks-mpc-demo --no-cache .

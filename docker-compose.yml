@@ -1,0 +1,78 @@
+version: "3.8"
+
+services:
+  bank_a_db:
+    image: mongo:4.0.4
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 262144
+        hard: 262144
+
+  bank_a:
+    depends_on:
+      - bank_a_db
+    volumes:
+      - .:/usr/src/app
+    image: banks-mpc-demo
+    ports:
+      - 9091:9090
+    environment:
+      MONGO_HOST: bank_a_db
+      UBIC_URL: http://ubic:8888
+      BANK_UUID: 111aaaaa-1af0-489e-b761-d40344c12e70
+    command: uvicorn main:app --host 0.0.0.0 --port 9090
+
+  bank_b_db:
+    image: mongo:4.0.4
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 262144
+        hard: 262144
+
+  bank_b:
+    depends_on:
+      - bank_b_db
+    volumes:
+      - .:/usr/src/app
+    image: banks-mpc-demo
+    ports:
+      - 9092:9090
+    environment:
+      MONGO_HOST: bank_b_db
+      UBIC_URL: http://ubic:8888
+      BANK_UUID: 222aaaaa-1af0-489e-b761-d40344c12e70
+    command: uvicorn main:app --host 0.0.0.0 --port 9090
+
+  bank_c_db:
+    image: mongo:4.0.4
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 262144
+        hard: 262144
+
+  bank_c:
+    depends_on:
+      - bank_c_db
+    volumes:
+      - .:/usr/src/app
+    image: banks-mpc-demo
+    ports:
+      - 9093:9090
+    environment:
+      MONGO_HOST: bank_c_db
+      UBIC_URL: http://ubic:8888
+      BANK_UUID: 333aaaaa-1af0-489e-b761-d40344c12e70
+    command: uvicorn main:app --host 0.0.0.0 --port 9090
+
+  ubic:
+    depends_on:
+      - bank_a
+      - bank_b
+      - bank_c
+    volumes:
+      - .:/usr/src/app
+    image: banks-mpc-demo
+    command: uvicorn tests.ubic_stub.main:app --host 0.0.0.0 --port 8888

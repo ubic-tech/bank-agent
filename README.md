@@ -1,63 +1,37 @@
-#### Переменные окружения
+### Запуск системы из 3 участников MPC:
 
-* UBIC_URL: путь к Ubic-MPC, например: `http://0.0.0.0:8888`
+`./create_image.sh`
 
-* MONGO_HOST: адрес MongoDB
+`docker-compose up`
 
-* MONGO_PORT порт MongoDB (по умолчанию `27017`)
+### Пример запроса совокупного баланса:
 
-* BANK_UUID уникальный индетификатор участника MPC
-
-* COMPUTE_TIMEOUT максимальное время (c) ожидания результата
-
-#### команды запуска системы из 3 участников MPC:
-
-* запуск 3ёх контейнеров MongoDB:
-  ```
-  docker run -d -p 27017:27017 --name mongodb_a mongo:4.0.4 
-  docker run -d -p 27018:27017 --name mongodb_a mongo:4.0.4
-  docker run -d -p 27019:27017 --name mongodb_a mongo:4.0.4
-  ```
-
-* установка зависимостей:
-
-`pip install -r requirements.txt`
-
-* запуск 3ёх участников MPC:
-
-```
-env MONGO_PORT=27017 BANK_UUID=111aaaaa-1af0-489e-b761-d40344c12e70 uvicorn main:app --host 0.0.0.0 --port 8081
-env MONGO_PORT=27018 BANK_UUID=222aaaaa-1af0-489e-b761-d40344c12e70 uvicorn main:app --host 0.0.0.0 --port 8082
-env MONGO_PORT=27019 BANK_UUID=333aaaaa-1af0-489e-b761-d40344c12e70 uvicorn main:app --host 0.0.0.0 --port 8083
-```
-
-
-* либо использовать `Dockerfile`, кастомизируя переменные среды и параметры запуска
-  
-
-* запуск Ubic-stub:
-
-```
-git clone https://gitlab.ubic.tech/datahub/banks-mpc/common.git
-cd common
-uvicorn main:app --host 0.0.0.0 --port 8888
-```
-
-* запуск вычислений:
-
-POST запрос по адресу: `http://0.0.0.0:8081/v1/compute`
+POST запрос по адресу: `http://localhost:9091/v1/compute`
 
 c телом:
 ```
 {
     "clients": [
-        "aaa1fc87-5722-4383-9830-2be483b6468d",
-        "bbb1fc87-5722-4383-9830-2be483b6468d",
-        "ccc1fc87-5722-4383-9830-2be483b6468d",
-        "eee1fc87-5722-4383-9830-2be483b6468d",
-        "aba1fc87-5722-4383-9830-2be483b6468d"
+        "bd2e86ce81ae00d65c2c02074a1e85c0a483613c74760f22f1fc07080d6e5dc5",
+        "9c2d29850e7fd884c19b3ef48a01b82c0a88854082ad150056ac770dcbeee05c",
+        "1a5d06a170dde413475957ca2b63396aa5e8fbecb7d379fcb668da3753fca5b6"
     ]
 }
 ```
 
+### Кастомизация балансов
 
+В файле `repository/fake_repository.py` находится словарь клиентов `_clients`, который выполняет роль БД с балансами.
+
+Чтобы изменить баланс клиентов, необходимо внести изменения в `_clients`. Также можно добавить новых клиентов.
+
+#### Пример изменения баланса для клиента
+
+```
+ _bank_a: {
+-    _oleg: 199,        # было
++    _oleg: 100500,     # стало
+     _olga: 102,
+```
+
+В вышеприведенном примере баланс клиента `_oleg` в банке `_bank_a` был изменён со `199` на `100500`. 

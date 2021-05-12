@@ -44,7 +44,7 @@ async def get_endpoints_by_uuid(uuids: [UUID]) -> [str]:
         raise request.OperationError
 
 
-def _create_shares(transaction_id: UUID, partners: [UUID], clients: [UUID]
+def _create_shares(transaction_id: UUID, partners: [UUID], clients: [str]
                    ) -> (bank.ShareRequest, [bank.ShareRequest]):
     """
     :return: my share and shares for partners
@@ -66,7 +66,7 @@ def _create_shares(transaction_id: UUID, partners: [UUID], clients: [UUID]
     return res[0], res[1:]
 
 
-async def _launch_mpc(transaction_id: UUID, partners: [UUID], clients: [UUID]):
+async def _launch_mpc(transaction_id: UUID, partners: [UUID], clients: [str]):
     endpoints = await get_endpoints_by_uuid(
         [p for p in partners if p != UUID(config.BANK_UUID)])  # my endpoint is not required
 
